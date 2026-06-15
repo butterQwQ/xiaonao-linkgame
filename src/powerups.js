@@ -90,6 +90,7 @@ export function usePowerup(id, _e) {
       if (result) powerupState.undo--;
       break;
   }
+  updateToolbar();
   render();
 }
 

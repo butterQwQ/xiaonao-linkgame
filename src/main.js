@@ -68,6 +68,7 @@ export function startClassicMode() {
     document.getElementById('modeBadge').textContent = '🖇️ 经典连连看';
     switchScreen('gameScreen');
     setupCanvas();
+    updateToolbar();
     render();
     if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
     gameLoop();
@@ -84,6 +85,7 @@ export function startMatch3Mode() {
     document.getElementById('modeBadge').textContent = '🌈 开心消消乐';
     switchScreen('gameScreen');
     setupCanvas();
+    updateToolbar();
     render();
     if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
     gameLoop();
@@ -170,6 +172,7 @@ function handleCanvasClick(e) {
     state.pendingBombTarget = false;
     const result = state.game.useBomb(pos.row, pos.col);
     if (result === true) powerupState.bomb--;
+    updateToolbar();
     render();
     return;
   }

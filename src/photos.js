@@ -4,7 +4,7 @@
 
 import { IMG_FILES, IMG_PATH, POWERUPS, VALID_CODES } from './config.js';
 import { state } from './state.js';
-import { powerupState } from './powerups.js';
+import { powerupState, updateToolbar } from './powerups.js';
 import { render } from './ui/render.js';
 import { playClick, playVictory } from './audio.js';
 
@@ -131,7 +131,7 @@ export function redeemCode() {
     result.innerHTML = VALID_CODES[code] + '<br>🔀洗牌×3 💡提示×3 🔍透视×3 ❄️冻结×3 💣炸弹×3 🔄撤销×3';
     result.style.color = '#FF1493';
     playVictory();
-    if (state.game) render();
+    if (state.game) { updateToolbar(); render(); }
   } else {
     result.textContent = '💔 兑换码无效，请检查后重试';
     result.style.color = '#FF6347';
