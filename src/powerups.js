@@ -2,10 +2,10 @@
 // 道具系统
 // ============================================================
 
-import { POWERUPS } from '../config.js';
-import { state } from '../state.js';
-import { FloatText } from '../particles.js';
-import { render } from '../ui/render.js';
+import { POWERUPS } from './config.js';
+import { state } from './state.js';
+import { FloatText } from './particles.js';
+import { render } from './ui/render.js';
 
 export const powerupState = {
   shuffle: 3,
