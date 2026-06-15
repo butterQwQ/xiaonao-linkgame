@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
+  <title>💖 闹闹消消乐 💖</title>
+  <script type="module" crossorigin src="./assets/index-DkMndC4z.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-Cj4cHQKa.css">
+</head>
+<body>
+  <!-- 装饰元素 -->
+  <div class="deco-heart">💗</div>
+  <div class="deco-heart">💖</div>
+  <div class="deco-heart">💕</div>
+  <div class="deco-heart">💘</div>
+
+  <!-- ==================== 菜单界面 ==================== -->
+  <div id="menuScreen" class="screen active">
+    <div class="menu-title">💖 闹闹消消乐 💖</div>
+    <div class="menu-subtitle">🌸 超可爱的消除游戏 🌸</div>
+    <div class="menu-btns">
+      <button class="btn btn-primary" onclick="startClassicMode()">🖇️ 经典连连看</button>
+      <button class="btn btn-secondary" onclick="startMatch3Mode()">🌈 开心消消乐</button>
+      <button class="btn btn-small" style="margin-top:8px;align-self:center" onclick="openPhotos()">📸 自定义方块</button>
+      <button class="btn btn-small" style="align-self:center" onclick="openRedeem()">🎁 兑换码</button>
+    </div>
+  </div>
+
+  <!-- ==================== 游戏界面 ==================== -->
+  <div id="gameScreen" class="screen">
+    <div class="game-header">
+      <div class="header-left">
+        <button class="back-btn" onclick="backToMenu()">←</button>
+        <span class="mode-badge" id="modeBadge">🖇️ 连连看</span>
+      </div>
+      <div class="header-center">
+        <span class="score-label">✨ 得分</span>
+        <span class="score-value" id="scoreDisplay">0</span>
+      </div>
+      <div class="header-right">
+        <span class="level-badge" id="levelDisplay">Lv.1</span>
+        <button class="mode-btn" id="hintBtn" onclick="useHint()">💡</button>
+      </div>
+    </div>
+    <div class="game-area" id="gameArea">
+      <canvas id="gameCanvas"></canvas>
+      <div class="frozen-overlay" id="frozenOverlay">
+        <span class="frozen-text">❄️ 冻结中 ❄️</span>
+      </div>
+      <div class="combo-popup" id="comboPopup"></div>
+    </div>
+    <div class="game-toolbar" id="gameToolbar"></div>
+  </div>
+
+  <!-- ==================== 照片自定义弹窗 ==================== -->
+  <div class="overlay" id="photoOverlay">
+    <div class="overlay-card">
+      <h2>📸 自定义方块</h2>
+      <p>点击方块可替换为自己上传的照片</p>
+      <div class="photo-grid" id="photoGrid"></div>
+      <div class="upload-area" onclick="document.getElementById('photoInput').click()">
+        <div class="upload-icon">📤</div>
+        <div class="upload-text">点击上传照片</div>
+      </div>
+      <input type="file" id="photoInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
+      <div id="cropArea" style="display:none">
+        <div class="crop-container">
+          <canvas id="cropCanvas"></canvas>
+        </div>
+        <button class="btn btn-primary btn-small" onclick="confirmCrop()">✓ 确认裁剪</button>
+      </div>
+      <button class="btn btn-small" style="margin-top:12px;" onclick="closeOverlay('photoOverlay')">完成</button>
+    </div>
+  </div>
+
+  <!-- ==================== 兑换码弹窗 ==================== -->
+  <div class="overlay" id="redeemOverlay">
+    <div class="overlay-card">
+      <h2>🎁 兑换码</h2>
+      <p>输入兑换码领取道具大礼包！</p>
+      <div class="code-input-group">
+        <input type="text" id="codeInput" placeholder="输入兑换码" maxlength="20">
+      </div>
+      <button class="btn btn-gold btn-small" onclick="redeemCode()">🎀 兑换</button>
+      <div id="redeemResult" style="margin-top:12px;font-size:14px;color:#666;"></div>
+      <button class="btn btn-small" style="margin-top:12px;" onclick="closeOverlay('redeemOverlay')">关闭</button>
+    </div>
+  </div>
+
+  <!-- ==================== 结算弹窗 ==================== -->
+  <div class="overlay" id="resultOverlay">
+    <div class="overlay-card result-card">
+      <div class="result-icon" id="resultIcon">🎉</div>
+      <h2 id="resultTitle">太棒了！</h2>
+      <div class="stars-row" id="resultStars">
+        <span class="star active" data-i="0">⭐</span>
+        <span class="star active" data-i="1">⭐</span>
+        <span class="star active" data-i="2">⭐</span>
+      </div>
+      <div class="result-score" id="resultScore">0</div>
+      <div class="result-detail" id="resultDetail">得分</div>
+      <div id="resultCombo" style="font-size:14px;color:#FF69B4;margin-bottom:12px;"></div>
+      <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary btn-small" id="resultNextBtn" onclick="nextLevel()">👉 下一关</button>
+        <button class="btn btn-secondary btn-small" onclick="backToMenu()">🏠 返回菜单</button>
+        <button class="btn btn-small" onclick="retryLevel()">🔄 再来一次</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
