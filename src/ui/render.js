@@ -17,8 +17,9 @@ export function setupCanvas() {
 export function resizeCanvas() {
   if (!state.game) return;
   const area = document.getElementById('gameArea');
-  const maxW = area.clientWidth - 16;
-  const maxH = area.clientHeight - 16;
+  const pad = window.innerWidth < 500 ? 4 : 16; // 手机上减少内边距
+  const maxW = area.clientWidth - pad;
+  const maxH = area.clientHeight - pad;
 
   const game = state.game;
   let cols = game.cols, rows = game.rows;
@@ -26,7 +27,8 @@ export function resizeCanvas() {
 
   const idealW = cols * bs + 4;
   const idealH = rows * bs + 4;
-  const scale = Math.min(1, maxW / idealW, maxH / idealH);
+  // 手机端允许放大到填充屏幕
+  const scale = Math.min(maxW / idealW, maxH / idealH);
   bs = Math.floor(bs * scale);
   state.canvasW = cols * bs + 4;
   state.canvasH = rows * bs + 4;

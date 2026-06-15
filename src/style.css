@@ -409,15 +409,21 @@ html, body {
 
 /* RESPONSIVE */
 @media (max-width: 600px) {
-  .game-header { padding: 4px 8px; }
-  .game-area { padding: 4px; }
-  .game-toolbar { padding: 4px 8px 8px; gap: 4px; }
-  .tool-btn { padding: 3px 6px; min-width: 40px; }
-  .tool-btn .tool-icon { font-size: 16px; }
-  .tool-btn .tool-name { font-size: 8px; }
+  .game-header { padding: 2px 6px; min-height: 36px; }
+  .game-area { padding: 2px; }
+  .game-toolbar { padding: 2px 6px 6px; gap: 3px; }
+  .tool-btn { padding: 2px 5px; min-width: 36px; }
+  .tool-btn .tool-icon { font-size: 15px; }
+  .tool-btn .tool-name { font-size: 7px; }
   .overlay-card { padding: 20px 16px; }
   .photo-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
-  .back-btn, .mode-btn { width: 30px; height: 30px; font-size: 14px; }
+  .back-btn, .mode-btn { width: 28px; height: 28px; font-size: 13px; }
+  .menu-title { font-size: clamp(28px, 7vw, 48px); }
+  .btn { padding: 12px 24px; }
+  .score-label { font-size: 9px; }
+  .score-value { font-size: clamp(16px, 4vw, 22px); }
+  .mode-badge { font-size: 11px; padding: 1px 8px; }
+  .level-badge { font-size: 9px; padding: 1px 6px; }
 }
 @media (min-width: 768px) {
   .game-area { padding: 16px; }

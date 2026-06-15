@@ -4,8 +4,15 @@
 
 export const CONFIG = {
   classic: { rows: 8, cols: 12, blockSize: 52, minBlockTypes: 10 },
+  // 手机端经典模式：减少列数，方块更大
+  classicMobile: { rows: 10, cols: 8, blockSize: 60, minBlockTypes: 8 },
   match3: { rows: 8, cols: 8, blockSize: 56, minBlockTypes: 6 }
 };
+
+// 屏幕宽度 < 500px 视为手机
+export function isMobile() {
+  return window.innerWidth < 500;
+}
 
 export const IMG_PATH = 'picture/';
 export const IMG_FILES = [

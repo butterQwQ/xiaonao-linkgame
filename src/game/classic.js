@@ -2,7 +2,7 @@
 // 经典连连看模式 (Classic Mode)
 // ============================================================
 
-import { CONFIG, IMG_FILES } from '../config.js';
+import { CONFIG, IMG_FILES, isMobile } from '../config.js';
 import { state } from '../state.js';
 import { playClick, playMatch, playCombo, playPowerup, playStar, playVictory } from '../audio.js';
 import { Particle, FloatText } from '../particles.js';
@@ -11,8 +11,10 @@ import { render, getBlockPos } from '../ui/render.js';
 export class ClassicGame {
   constructor() {
     this.mode = 'classic';
-    this.rows = CONFIG.classic.rows;
-    this.cols = CONFIG.classic.cols;
+    const cfg = isMobile() ? CONFIG.classicMobile : CONFIG.classic;
+    this.rows = cfg.rows;
+    this.cols = cfg.cols;
+    this.minBlockTypes = cfg.minBlockTypes;
     this.level = 1;
     this.score = 0;
     this.combo = 0;
@@ -40,7 +42,7 @@ export class ClassicGame {
   initBoard() {
     this.board = [];
     const totalCells = this.rows * this.cols;
-    const numTypes = Math.min(10, IMG_FILES.length);
+    const numTypes = Math.min(this.minBlockTypes, IMG_FILES.length);
     const pairs = Math.floor(totalCells / 2);
     let tiles = [];
     for (let i = 0; i < pairs; i++) {
