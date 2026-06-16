@@ -74,10 +74,10 @@ function playArpeggio(notes, interval, vol = 0.07) {
  * 支持 .mp3 / .ogg / .wav
  */
 export const BGM_TRACKS = {
-  menu:       '/audio/bgm_menu.mp3',
-  classic:    '/audio/bgm_classic.mp3',
-  match3:     '/audio/bgm_match3.mp3',
-  numberElim: '/audio/bgm_numberelim.mp3',
+  menu:       './audio/bgm_menu.mp3',
+  classic:    './audio/bgm_classic.mp3',
+  match3:     './audio/bgm_match3.mp3',
+  numberElim: './audio/bgm_numberelim.mp3',
 };
 
 let _bgmAudio = null;

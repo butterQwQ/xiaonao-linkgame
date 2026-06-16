@@ -7,12 +7,12 @@ import { playClick, playMatch, playVictory, playPowerup } from '../audio.js';
 
 const TOTAL_TIME = 180; // 180秒
 const RATINGS = [
-  { score: 160, title: '👑 小闹女王', color: '#FF1493' },
-  { score: 140, title: '💻 程序员', color: '#00BFFF' },
-  { score: 120, title: '🎓 大学生', color: '#32CD32' },
-  { score: 100, title: '📚 高中生', color: '#FFA500' },
-  { score: 80, title: '📖 小学生', color: '#87CEEB' },
-  { score: 60, title: '🍼 幼儿园', color: '#FFB6C1' },
+  { score: 80, title: '👑 小闹女王', color: '#FF1493' },
+  { score: 70, title: '💻 程序员', color: '#00BFFF' },
+  { score: 60, title: '🎓 大学生', color: '#32CD32' },
+  { score: 50, title: '📚 高中生', color: '#FFA500' },
+  { score: 40, title: '📖 小学生', color: '#87CEEB' },
+  { score: 30, title: '🍼 幼儿园', color: '#FFB6C1' },
   { score: 0, title: '😢 再试试吧', color: '#999' },
 ];
 
@@ -233,7 +233,11 @@ export class NumberElimGame {
 
   updateSelection() {
     document.querySelectorAll('.ne-cell.selected').forEach(el => el.classList.remove('selected'));
-    if (!this.startCell || !this.currentCell) return;
+    const selBox = document.getElementById('numElimSelection');
+    if (!this.startCell || !this.currentCell) {
+      if (selBox) selBox.classList.remove('active');
+      return;
+    }
 
     const minRow = Math.min(this.startCell.row, this.currentCell.row);
     const maxRow = Math.max(this.startCell.row, this.currentCell.row);
@@ -257,6 +261,24 @@ export class NumberElimGame {
       }
     }
 
+    // 更新选择矩形框位置和大小
+    if (selBox && this.selectedCells.length > 0) {
+      const gridRect = grid.getBoundingClientRect();
+      const container = document.getElementById('numElimContainer');
+      const containerRect = container.getBoundingClientRect();
+
+      const firstCell = this.selectedCells[0].el;
+      const lastCell = this.selectedCells[this.selectedCells.length - 1].el;
+      const firstRect = firstCell.getBoundingClientRect();
+      const lastRect = lastCell.getBoundingClientRect();
+
+      selBox.style.left = (firstRect.left - containerRect.left) + 'px';
+      selBox.style.top = (firstRect.top - containerRect.top) + 'px';
+      selBox.style.width = (lastRect.right - firstRect.left) + 'px';
+      selBox.style.height = (lastRect.bottom - firstRect.top) + 'px';
+      selBox.classList.add('active');
+    }
+
     const sumEl = document.getElementById('numElimSum');
     if (this.selectedCells.length > 0) {
       sumEl.textContent = `和: ${sum}`;
@@ -268,6 +290,8 @@ export class NumberElimGame {
 
   clearSelection() {
     document.querySelectorAll('.ne-cell.selected').forEach(el => el.classList.remove('selected'));
+    const selBox = document.getElementById('numElimSelection');
+    if (selBox) selBox.classList.remove('active');
     const sumEl = document.getElementById('numElimSum');
     if (sumEl) sumEl.classList.remove('show', 'valid');
     this.selectedCells = [];
@@ -285,7 +309,7 @@ export class NumberElimGame {
 
     if (sum === 10) {
       this.combo++;
-      this.score += 2; // 每次消除得2分
+      this.score += 1; // 每次消除得1分
       this.moves++;
 
       for (const cell of this.selectedCells) {
@@ -296,12 +320,6 @@ export class NumberElimGame {
         setTimeout(() => { if (!this._destroyed) elRef.textContent = ''; }, 400);
       }
       playMatch();
-
-      // 连击加分
-      if (this.combo >= 3) {
-        this.score += this.combo; // 连击额外加分
-        setTimeout(() => playPowerup(), 100);
-      }
 
       this.updateHUD();
 
@@ -362,10 +380,10 @@ export class NumberElimGame {
     document.getElementById('resultScore').textContent = this.score;
     document.getElementById('resultDetail').textContent = `时间到！消除 ${this.moves} 次`;
     document.getElementById('resultCombo').textContent =
-      this.score >= 160 ? '🌟 你是小闹女王！太强了！' : '';
+      this.score >= 80 ? '🌟 你是小闹女王！太强了！' : '';
 
     const starsEl = document.getElementById('resultStars');
-    const starCount = this.score >= 160 ? 3 : this.score >= 120 ? 2 : this.score >= 60 ? 1 : 0;
+    const starCount = this.score >= 80 ? 3 : this.score >= 60 ? 2 : this.score >= 30 ? 1 : 0;
     starsEl.querySelectorAll('.star').forEach((s, i) => {
       s.classList.toggle('active', i < starCount);
     });
@@ -384,10 +402,10 @@ export class NumberElimGame {
     document.getElementById('resultDetail').textContent =
       `全部消除！用时 ${this._formatTime(TOTAL_TIME - this.timeLeft)} · 消除 ${this.moves} 次`;
     document.getElementById('resultCombo').textContent =
-      this.score >= 160 ? '🌟 你是小闹女王！太强了！' : '';
+      this.score >= 80 ? '🌟 你是小闹女王！太强了！' : '';
 
     const starsEl = document.getElementById('resultStars');
-    const starCount = this.score >= 160 ? 3 : this.score >= 120 ? 2 : this.score >= 60 ? 1 : 0;
+    const starCount = this.score >= 80 ? 3 : this.score >= 60 ? 2 : this.score >= 30 ? 1 : 0;
     starsEl.querySelectorAll('.star').forEach((s, i) => {
       s.classList.toggle('active', i < starCount);
     });
