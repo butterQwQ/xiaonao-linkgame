@@ -268,23 +268,17 @@ export class Match3Game {
     state.fallingBlocks = drops;
 
     const dropDuration = 20;
-    let frame = 0;
-
-    const animateDropFrame = () => {
-      frame++;
-      const t = Math.min(1, frame / dropDuration);
-      for (const fb of state.fallingBlocks) {
-        fb.progress = t;
-      }
-      render();
-
-      if (t < 1) {
-        requestAnimationFrame(animateDropFrame);
-      } else {
+    // 使用统一的 gameLoop 驱动，不再开第二个 RAF
+    state.fallingAnim = {
+      active: true,
+      frame: 0,
+      duration: dropDuration,
+      onDone: () => {
         for (const fb of state.fallingBlocks) {
           this.board[fb.toRow][fb.col] = fb.block;
         }
         state.fallingBlocks = [];
+        state.fallingAnim = null;
         this.isAnimating = false;
 
         const bs = this.blockSize;
@@ -304,7 +298,6 @@ export class Match3Game {
         }, 200);
       }
     };
-    animateDropFrame();
   }
 
   processSpecialBlocks() {
@@ -422,16 +415,14 @@ export class Match3Game {
       swapBack: false
     };
 
-    const animateSwap = () => {
-      state.swapAnimation.progress += 0.15;
-      render();
-
-      if (state.swapAnimation.progress < 1) {
-        requestAnimationFrame(animateSwap);
-      } else {
+    state.swapAnim = {
+      active: true,
+      speed: 0.15,
+      onDone: () => {
         [this.board[r1][c1], this.board[r2][c2]] = [this.board[r2][c2], this.board[r1][c1]];
         this.selected = null;
         state.swapAnimation = null;
+        state.swapAnim = null;
 
         const { matched } = this.findMatches();
 
@@ -445,27 +436,23 @@ export class Match3Game {
             swapBack: true
           };
 
-          const animateSwapBack = () => {
-            state.swapAnimation.progress += 0.12;
-            render();
-            if (state.swapAnimation.progress < 1) {
-              requestAnimationFrame(animateSwapBack);
-            } else {
+          state.swapAnim = {
+            active: true,
+            speed: 0.12,
+            onDone: () => {
               [this.board[r1][c1], this.board[r2][c2]] = [this.board[r2][c2], this.board[r1][c1]];
               state.swapAnimation = null;
+              state.swapAnim = null;
               this.isAnimating = false;
               state.floatTexts.push(new FloatText(state.canvasW / 2, state.canvasH / 2, '❌ 不能消除', '#FF6347'));
-              render();
             }
           };
-          animateSwapBack();
         } else {
           this.isAnimating = false;
           this.processMatches();
         }
       }
     };
-    animateSwap();
   }
 
   shuffle() {

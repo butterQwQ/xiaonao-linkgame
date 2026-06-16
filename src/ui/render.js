@@ -413,6 +413,33 @@ export function render() {
 export function gameLoop() {
   state.particles = state.particles.filter(p => p.update());
   state.floatTexts = state.floatTexts.filter(ft => ft.update());
+
+  // 交换动画进度推进（统一驱动，避免双倍 render）
+  if (state.swapAnim && state.swapAnim.active && state.swapAnimation) {
+    const sa = state.swapAnim;
+    sa.speed = sa.speed || 0.15;
+    state.swapAnimation.progress += sa.speed;
+    if (state.swapAnimation.progress >= 1) {
+      state.swapAnimation.progress = 1;
+      sa.active = false;
+      if (sa.onDone) sa.onDone();
+    }
+  }
+
+  // 下落动画进度推进（统一驱动）
+  if (state.fallingAnim && state.fallingAnim.active) {
+    const fa = state.fallingAnim;
+    fa.frame++;
+    const t = Math.min(1, fa.frame / fa.duration);
+    for (const fb of state.fallingBlocks) {
+      fb.progress = t;
+    }
+    if (t >= 1) {
+      fa.active = false;
+      if (fa.onDone) fa.onDone();
+    }
+  }
+
   render();
   state.animFrameId = requestAnimationFrame(gameLoop);
 }
