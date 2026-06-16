@@ -1,5 +1,5 @@
 // ============================================================
-// 闹闹消消乐 — 主入口
+// 小闹游戏盒 — 主入口
 // ============================================================
 
 import './style.css';
@@ -8,6 +8,7 @@ import { state, SWIPE_THRESHOLD } from './state.js';
 import { playClick } from './audio.js';
 import { ClassicGame } from './game/classic.js';
 import { Match3Game } from './game/match3.js';
+import { NumberElimGame } from './game/numberElim.js';
 import { setupCanvas, render, gameLoop, getBlockAt } from './ui/render.js';
 import { resetPowerups, updateToolbar, usePowerup, powerupState } from './powerups.js';
 import {
@@ -58,7 +59,28 @@ export function switchScreen(id) {
   document.getElementById(id).classList.add('active');
 }
 
-// --- Game start ---
+// --- UI mode helpers ---
+function _setupElimModeUI() {
+  // 消除类游戏：显示 canvas + 工具栏 + 扩展栏
+  document.getElementById('gameArea').style.display = '';
+  document.getElementById('gameAreaDom').style.display = 'none';
+  document.getElementById('gameToolbar').style.display = '';
+  document.getElementById('gameExtraBar').style.display = '';
+  document.getElementById('hintBtn').style.display = 'none'; // hint in toolbar
+  document.getElementById('scoreSubDisplay').textContent = '';
+}
+
+function _setupDomModeUI() {
+  // DOM 游戏（数字消除）：隐藏 canvas + 工具栏 + 扩展栏
+  document.getElementById('gameArea').style.display = 'none';
+  document.getElementById('gameAreaDom').style.display = '';
+  document.getElementById('gameToolbar').style.display = 'none';
+  document.getElementById('gameExtraBar').style.display = 'none';
+  document.getElementById('hintBtn').style.display = '';
+  document.getElementById('scoreSubDisplay').textContent = '';
+}
+
+// --- Game start (消除类) ---
 export function startClassicMode() {
   playClick();
   resetPowerups();
@@ -66,6 +88,7 @@ export function startClassicMode() {
     state.mode = 'classic';
     state.game = new ClassicGame();
     document.getElementById('modeBadge').textContent = '🖇️ 经典连连看';
+    _setupElimModeUI();
     switchScreen('gameScreen');
     setupCanvas();
     updateToolbar();
@@ -83,6 +106,7 @@ export function startMatch3Mode() {
     state.game = new Match3Game();
     state.game._resultShown = false;
     document.getElementById('modeBadge').textContent = '🌈 开心消消乐';
+    _setupElimModeUI();
     switchScreen('gameScreen');
     setupCanvas();
     updateToolbar();
@@ -92,9 +116,25 @@ export function startMatch3Mode() {
   });
 }
 
+// --- 数字消除 ---
+export function startNumberElimMode() {
+  playClick();
+  state.mode = 'numberElim';
+  state.game = new NumberElimGame();
+  document.getElementById('modeBadge').textContent = '🔢 数字消除';
+  _setupDomModeUI();
+  switchScreen('gameScreen');
+}
+
 export function nextLevel() {
-  const oldLevel = state.game.level + 1;
   closeOverlay('resultOverlay');
+  if (state.game.mode === 'numberElim') {
+    state.game.destroy();
+    state.game = new NumberElimGame();
+    _setupDomModeUI();
+    return;
+  }
+  const oldLevel = state.game.level + 1;
   if (state.game.mode === 'classic') {
     state.game = new ClassicGame();
     state.game.level = oldLevel;
@@ -110,6 +150,12 @@ export function nextLevel() {
 
 export function retryLevel() {
   closeOverlay('resultOverlay');
+  if (state.game.mode === 'numberElim') {
+    state.game.destroy();
+    state.game = new NumberElimGame();
+    _setupDomModeUI();
+    return;
+  }
   if (state.game.mode === 'classic') {
     const lv = state.game.level;
     state.game = new ClassicGame();
@@ -131,11 +177,18 @@ export function backToMenu() {
   closeOverlay('resultOverlay');
   closeOverlay('photoOverlay');
   closeOverlay('redeemOverlay');
+
+  // Destroy DOM-based game if active
+  if (state.game && typeof state.game.destroy === 'function') {
+    state.game.destroy();
+  }
+
   state.game = null;
   state.particles = [];
   state.floatTexts = [];
   state.fallingBlocks = [];
   state.swapAnimation = null;
+  state.mode = null;
   document.getElementById('frozenOverlay').classList.remove('active');
   switchScreen('menuScreen');
 }
@@ -161,7 +214,7 @@ function getCanvasCoords(e) {
 }
 
 function handleCanvasClick(e) {
-  if (!state.game) return;
+  if (!state.game || state.game.mode === 'numberElim') return;
   const { px, py } = getCanvasCoords(e);
   if (e.touches) e.preventDefault();
 
@@ -227,6 +280,16 @@ function handleTouchEnd() {
   state.dragTarget = null;
 }
 
+// --- Number elimin hint button ---
+function handleHintBtn() {
+  if (!state.game) return;
+  if (state.game.mode === 'numberElim') {
+    state.game.showHint();
+  } else {
+    usePowerup('hint');
+  }
+}
+
 // --- Init ---
 document.addEventListener('DOMContentLoaded', () => {
   state.canvas = document.getElementById('gameCanvas');
@@ -246,6 +309,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // Expose globals for HTML onclick attributes
 window.startClassicMode = startClassicMode;
 window.startMatch3Mode = startMatch3Mode;
+window.startNumberElimMode = startNumberElimMode;
 window.nextLevel = nextLevel;
 window.retryLevel = retryLevel;
 window.backToMenu = backToMenu;
@@ -255,7 +319,7 @@ window.redeemCode = redeemCode;
 window.closeOverlay = closeOverlay;
 window.handlePhotoUpload = handlePhotoUpload;
 window.confirmCrop = confirmCrop;
-window.useHint = () => usePowerup('hint');
+window.useHint = handleHintBtn;
 
-console.log('💖 闹闹消消乐 v1.1 已加载！');
+console.log('🎮 小闹游戏盒 v2.0 已加载！');
 console.log('🎀 兑换码: 豆豆爱闹闹');

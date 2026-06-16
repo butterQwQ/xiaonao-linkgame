@@ -6,7 +6,8 @@ export const CONFIG = {
   classic: { rows: 8, cols: 12, blockSize: 52, minBlockTypes: 10 },
   // 手机端经典模式：减少列数，方块更大
   classicMobile: { rows: 10, cols: 8, blockSize: 60, minBlockTypes: 8 },
-  match3: { rows: 8, cols: 8, blockSize: 56, minBlockTypes: 6 }
+  match3: { rows: 8, cols: 8, blockSize: 56, minBlockTypes: 6 },
+  numberElim: { rows: 16, cols: 12, blockSize: 28 }
 };
 
 // 屏幕宽度 < 500px 视为手机
