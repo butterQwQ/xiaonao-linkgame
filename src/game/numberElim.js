@@ -7,10 +7,10 @@ import { playClick, playMatch, playVictory, playPowerup } from '../audio.js';
 
 const TOTAL_TIME = 240; // 240秒 = 4分钟
 const RATINGS = [
-  { score: 160, title: '👑 小闹女王', color: '#FF1493' },
-  { score: 140, title: '💻 程序员', color: '#00BFFF' },
-  { score: 120, title: '🎓 大学生', color: '#32CD32' },
-  { score: 100, title: '📚 高中生', color: '#FFA500' },
+  { score: 120, title: '👑 小闹女王', color: '#FF1493' },
+  { score: 110, title: '💻 程序员', color: '#00BFFF' },
+  { score: 100, title: '🎓 大学生', color: '#32CD32' },
+  { score: 90, title: '📚 高中生', color: '#FFA500' },
   { score: 80, title: '📖 小学生', color: '#87CEEB' },
   { score: 60, title: '🍼 幼儿园', color: '#FFB6C1' },
   { score: 0, title: '😢 再试试吧', color: '#999' },
@@ -396,10 +396,10 @@ export class NumberElimGame {
     document.getElementById('resultScore').textContent = this.score;
     document.getElementById('resultDetail').textContent = `时间到！消除 ${this.moves} 次`;
     document.getElementById('resultCombo').textContent =
-      this.score >= 160 ? '🌟 你是小闹女王！太强了！' : '';
+      this.score >= 120 ? '🌟 你是小闹女王！太强了！' : '';
 
     const starsEl = document.getElementById('resultStars');
-    const starCount = this.score >= 160 ? 3 : this.score >= 120 ? 2 : this.score >= 60 ? 1 : 0;
+    const starCount = this.score >= 120 ? 3 : this.score >= 90 ? 2 : this.score >= 60 ? 1 : 0;
     starsEl.querySelectorAll('.star').forEach((s, i) => {
       s.classList.toggle('active', i < starCount);
     });
@@ -418,10 +418,10 @@ export class NumberElimGame {
     document.getElementById('resultDetail').textContent =
       `全部消除！用时 ${this._formatTime(TOTAL_TIME - this.timeLeft)} · 消除 ${this.moves} 次`;
     document.getElementById('resultCombo').textContent =
-      this.score >= 160 ? '🌟 你是小闹女王！太强了！' : '';
+      this.score >= 120 ? '🌟 你是小闹女王！太强了！' : '';
 
     const starsEl = document.getElementById('resultStars');
-    const starCount = this.score >= 160 ? 3 : this.score >= 120 ? 2 : this.score >= 60 ? 1 : 0;
+    const starCount = this.score >= 120 ? 3 : this.score >= 90 ? 2 : this.score >= 60 ? 1 : 0;
     starsEl.querySelectorAll('.star').forEach((s, i) => {
       s.classList.toggle('active', i < starCount);
     });
