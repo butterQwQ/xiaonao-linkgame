@@ -118,6 +118,7 @@ html, body {
   justify-content: flex-start;
   padding: 0;
   padding-bottom: env(safe-area-inset-bottom, 0px);
+  overflow-y: auto;
 }
 .game-header {
   width: 100%;
@@ -183,7 +184,6 @@ html, body {
 }
 .game-area {
   flex: 1;
-  min-height: 0;
   width: 100%;
   display: flex;
   align-items: center;
@@ -191,6 +191,7 @@ html, body {
   padding: 4px 8px;
   position: relative;
   overflow: hidden;
+  min-height: 60px;
 }
 #gameCanvas {
   border-radius: var(--radius);
