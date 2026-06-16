@@ -67,6 +67,38 @@ export function getBlockAt(game, px, py) {
   return null;
 }
 
+// --- 方块缓存：预渲染每种类型，避免每帧重复 shadowBlur / clip ---
+const _blockCache = {};
+function _buildBlockCache(blockTypeIdx, srcImg, bs) {
+  const key = `${blockTypeIdx}_${bs}`;
+  if (_blockCache[key]) return _blockCache[key];
+  const c = document.createElement('canvas');
+  c.width = bs; c.height = bs;
+  const cx = c.getContext('2d');
+  const pad = 2;
+  const r = bs * 0.2;
+  const innerSize = bs - pad * 2;
+
+  // 圆角裁剪 + 贴图
+  cx.beginPath();
+  cx.roundRect(pad, pad, innerSize, innerSize, r);
+  cx.clip();
+  if (srcImg instanceof HTMLImageElement || srcImg instanceof HTMLCanvasElement) {
+    cx.drawImage(srcImg, pad, pad, innerSize, innerSize);
+  }
+
+  // 马卡龙边框
+  const macaronColor = MACARON_COLORS[blockTypeIdx % MACARON_COLORS.length];
+  cx.strokeStyle = macaronColor;
+  cx.lineWidth = 2.5;
+  cx.beginPath();
+  cx.roundRect(pad, pad, innerSize, innerSize, r);
+  cx.stroke();
+
+  _blockCache[key] = c;
+  return c;
+}
+
 // --- Draw a single block ---
 function drawBlock(ctx, game, row, col, highlight) {
   const block = game.board[row] && game.board[row][col];
@@ -77,7 +109,7 @@ function drawBlock(ctx, game, row, col, highlight) {
   const pad = 2;
   const r = bs * 0.2;
 
-  // Special block rendering
+  // Special block
   if (typeof block === 'object' && block.type === 'special') {
     const grad = ctx.createRadialGradient(x + bs / 2, y + bs / 2, 0, x + bs / 2, y + bs / 2, bs);
     grad.addColorStop(0, '#FFD700');
@@ -96,47 +128,25 @@ function drawBlock(ctx, game, row, col, highlight) {
   }
 
   const imgIdx = typeof block === 'object' ? block.idx : block - 1;
-  const img = state.customImages[imgIdx] || state.images[imgIdx];
-  if (!img) return;
+  const srcImg = state.customImages[imgIdx] || state.images[imgIdx];
+  if (!srcImg) return;
 
-  // Draw image
-  ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(x + pad, y + pad, bs - pad * 2, bs - pad * 2, r);
-  ctx.clip();
+  // 用缓存直接贴图（跳过每帧的 clip + drawImage + shadowBlur）
+  const cached = _buildBlockCache(imgIdx, srcImg, bs);
+  ctx.drawImage(cached, x, y);
 
-  if (img instanceof HTMLImageElement || img instanceof HTMLCanvasElement) {
-    ctx.drawImage(img, x + pad, y + pad, bs - pad * 2, bs - pad * 2);
-  }
-  ctx.restore();
-
-  // Highlight (pulse animation)
+  // 高亮环（仅选中的方块才画）
   if (highlight) {
     const pulse = 0.7 + 0.3 * Math.sin(Date.now() / 200);
+    ctx.save();
     ctx.shadowColor = `rgba(255,215,0,${0.4 * pulse})`;
     ctx.shadowBlur = 8 + 6 * pulse;
     ctx.strokeStyle = '#FFD700';
     ctx.lineWidth = 3;
     drawRoundedRect(ctx, x + pad, y + pad, bs - pad * 2, bs - pad * 2, r);
     ctx.stroke();
-    ctx.shadowBlur = 0;
+    ctx.restore();
   }
-
-  // Macaron color border
-  const macaronColor = MACARON_COLORS[imgIdx % MACARON_COLORS.length];
-  ctx.strokeStyle = macaronColor;
-  ctx.lineWidth = 2.5;
-  ctx.shadowColor = macaronColor + '40';
-  ctx.shadowBlur = 6;
-  drawRoundedRect(ctx, x + pad, y + pad, bs - pad * 2, bs - pad * 2, r);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
-
-  // Inner white edge
-  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
-  ctx.lineWidth = 1;
-  drawRoundedRect(ctx, x + pad + 2, y + pad + 2, bs - pad * 2 - 4, bs - pad * 2 - 4, r - 1);
-  ctx.stroke();
 }
 
 // --- Draw block at arbitrary position (for swap/fall animations) ---
