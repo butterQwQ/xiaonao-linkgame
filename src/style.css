@@ -22,16 +22,21 @@
 
 html, body {
   width:100%; height:100%;
+  height: 100dvh;
   font-family: var(--font-main);
   background: var(--pink-bg);
   overflow: hidden;
   user-select: none;
+  /* iPhone 安全区 */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-sizing: border-box;
 }
 
 /* ==================== SCREENS ==================== */
 .screen {
   display: none;
   width:100%; height:100%;
+  height: 100dvh;
   position: absolute; top:0; left:0;
   flex-direction: column;
   align-items: center;
@@ -112,6 +117,7 @@ html, body {
   background: var(--pink-bg);
   justify-content: flex-start;
   padding: 0;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .game-header {
   width: 100%;
@@ -177,11 +183,12 @@ html, body {
 }
 .game-area {
   flex: 1;
+  min-height: 0;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px;
+  padding: 4px 8px;
   position: relative;
   overflow: hidden;
 }
@@ -195,11 +202,11 @@ html, body {
 }
 .game-toolbar {
   width: 100%;
-  padding: 6px 12px 10px;
+  padding: 3px 8px 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   flex-wrap: wrap;
   flex-shrink: 0;
   background: linear-gradient(0deg, #FFE4EC, transparent);
@@ -671,6 +678,7 @@ html, body {
   .game-header { padding: 2px 6px; min-height: 36px; }
   .game-area { padding: 2px; }
   .game-toolbar { padding: 2px 6px 6px; gap: 3px; }
+  .game-extra-bar { padding: 1px 8px 2px; gap: 4px; }
   .tool-btn { padding: 2px 5px; min-width: 36px; }
   .tool-btn .tool-icon { font-size: 15px; }
   .tool-btn .tool-name { font-size: 7px; }
@@ -683,6 +691,20 @@ html, body {
   .score-value { font-size: clamp(16px, 4vw, 22px); }
   .mode-badge { font-size: 11px; padding: 1px 8px; }
   .level-badge { font-size: 9px; padding: 1px 6px; }
+  .extra-btn { padding: 4px 10px; font-size: 10px; }
+  .fuse-bar { padding: 2px 6px; }
+  .fuse-bomb { font-size: 22px; }
+  .fuse-rope { height: 10px; }
+  .fuse-timer { font-size: 13px; min-width: 36px; }
+}
+/* iPhone X+ 安全区增强 */
+@supports (padding-bottom: env(safe-area-inset-bottom)) {
+  .game-toolbar {
+    padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+  .game-extra-bar {
+    padding-bottom: calc(4px + env(safe-area-inset-bottom, 0px));
+  }
 }
 @media (min-width: 768px) {
   .game-area { padding: 16px; }
@@ -692,8 +714,13 @@ html, body {
 @media (orientation: landscape) and (max-height: 500px) {
   .game-header { min-height: 36px; padding: 2px 8px; }
   .game-toolbar { padding: 2px 8px 4px; }
+  .game-extra-bar { padding: 0px 8px 2px; }
   .game-area { padding: 2px; }
   .tool-btn { padding: 2px 6px; min-width: 36px; }
   .tool-btn .tool-icon { font-size: 14px; }
   .tool-btn .tool-name { display: none; }
+  .extra-btn { padding: 3px 8px; font-size: 10px; }
+  .fuse-bar { padding: 1px 6px; }
+  .fuse-rope { height: 8px; }
+  .fuse-timer { font-size: 12px; }
 }
