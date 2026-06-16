@@ -429,61 +429,114 @@ html, body {
 
 /* ==================== 数字消除游戏样式 ==================== */
 
-/* 炸弹引线倒计时条 */
+/* 炸弹引线倒计时条 — 与网格宽度一致，居中于网格上方 */
+#gameAreaDom {
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
+  padding-top: 4px;
+  overflow: visible;
+}
 .fuse-bar {
   display: flex;
   align-items: center;
   gap: 6px;
-  width: 100%;
-  padding: 2px 8px;
-  margin-bottom: 6px;
+  width: min(460px, 90vw);
+  padding: 4px 8px;
   box-sizing: border-box;
+  flex-shrink: 0;
 }
 .fuse-bomb {
-  font-size: 24px;
+  font-size: 26px;
   flex-shrink: 0;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
   transition: transform 0.3s;
 }
 .fuse-bomb.danger {
   animation: bombShake 0.3s ease infinite;
 }
 @keyframes bombShake {
-  0%,100% { transform: rotate(0); }
-  25% { transform: rotate(-5deg); }
-  75% { transform: rotate(5deg); }
+  0%,100% { transform: rotate(0) scale(1); }
+  25% { transform: rotate(-8deg) scale(1.15); }
+  75% { transform: rotate(8deg) scale(1.15); }
 }
-.fuse-track {
+
+/* 绳索主体 */
+.fuse-rope {
   flex: 1;
-  height: 8px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 4px;
+  height: 12px;
   position: relative;
-  overflow: visible;
+  border-radius: 6px;
+  overflow: hidden;
+  /* 绳索纹理：麻绳棕色条纹 */
+  background:
+    repeating-linear-gradient(
+      90deg,
+      #C4A46C 0px, #C4A46C 3px,
+      #A0845C 3px, #A0845C 4px,
+      #C4A46C 4px, #C4A46C 7px,
+      #8B6F47 7px, #8B6F47 8px
+    );
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);
 }
-.fuse-fill {
+
+/* 已燃尽的灰烬覆盖层（从右向左蔓延） */
+.fuse-burn {
+  position: absolute;
+  right: 0;
+  top: 0;
   height: 100%;
-  border-radius: 4px;
-  background: linear-gradient(90deg, #22c55e, #4ade80);
+  width: 0%;
+  background: linear-gradient(90deg, transparent 0%, #333 40%, #1a1a1a 100%);
+  border-radius: 0 6px 6px 0;
   transition: width 1s linear;
-  width: 100%;
 }
+/* 燃尽边缘的余烬光 */
+.fuse-burn::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(90deg, #ff4400, #ff6600, transparent);
+  border-radius: 3px 0 0 3px;
+}
+
+/* 火花 — 跟随燃尽边缘移动 */
 .fuse-spark {
   position: absolute;
   top: 50%;
   transform: translate(-50%, -50%);
-  font-size: 14px;
+  width: 16px;
+  height: 16px;
   left: 100%;
   transition: left 1s linear;
-  filter: drop-shadow(0 0 4px #ff6600);
+  pointer-events: none;
+  z-index: 2;
+  /* 用CSS绘制火花 */
+  background: radial-gradient(circle, #fff 10%, #ffcc00 40%, #ff6600 70%, transparent 100%);
+  border-radius: 50%;
+  box-shadow:
+    0 0 6px 2px #ff6600,
+    0 0 12px 4px #ff4400,
+    0 0 20px 8px #ff220044;
+  animation: sparkFlicker 0.15s ease infinite alternate;
+}
+@keyframes sparkFlicker {
+  from { opacity: 0.8; transform: translate(-50%, -50%) scale(0.9); }
+  to   { opacity: 1;   transform: translate(-50%, -50%) scale(1.15); }
 }
 .fuse-spark.burst {
-  animation: sparkBurst 0.3s ease;
+  animation: sparkBurst 0.3s ease !important;
 }
 @keyframes sparkBurst {
-  0% { transform: translate(-50%, -50%) scale(1); }
-  50% { transform: translate(-50%, -50%) scale(2); opacity: 0.5; }
-  100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+  0% { box-shadow: 0 0 6px #ff6600, 0 0 12px #ff4400; transform: translate(-50%, -50%) scale(1); }
+  50% { box-shadow: 0 0 12px #ffcc00, 0 0 24px #ff6600, 0 0 36px #ff2200; transform: translate(-50%, -50%) scale(2.5); }
+  100% { box-shadow: 0 0 6px #ff6600, 0 0 12px #ff4400; transform: translate(-50%, -50%) scale(1); }
 }
+
 .fuse-timer {
   font-size: 16px;
   font-weight: 700;

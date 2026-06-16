@@ -141,27 +141,29 @@ export class NumberElimGame {
 
   // ---- 炸弹引线 ----
   _updateFuse() {
-    const pct = this.timeLeft / TOTAL_TIME;
-    const fuseFill = document.getElementById('fuseFill');
+    const pct = this.timeLeft / TOTAL_TIME;      // 1 → 0
+    const burnPct = 1 - pct;                     // 0 → 1 (燃尽比例)
+    const fuseBurn = document.getElementById('fuseBurn');
     const fuseSpark = document.getElementById('fuseSpark');
     const fuseBomb = document.getElementById('fuseBomb');
     const timerEl = document.getElementById('numElimTimer');
-    if (!fuseFill) return;
+    if (!fuseBurn) return;
 
-    // 引线从右向左燃烧
-    fuseFill.style.width = (pct * 100) + '%';
+    // 已燃部分从右向左蔓延
+    fuseBurn.style.width = (burnPct * 100) + '%';
+
+    // 火花跟随燃线边缘，从右(100%)向左(0%)移动
     fuseSpark.style.left = (pct * 100) + '%';
 
-    // 时间颜色
+    // 时间警告配色
     if (this.timeLeft <= 30) {
-      fuseFill.style.background = 'linear-gradient(90deg, #ff4444, #ff6b6b)';
-      fuseSpark.style.background = '#ff0000';
+      fuseBurn.style.background = 'linear-gradient(90deg, transparent 0%, #4a0000 30%, #1a0000 100%)';
       fuseBomb.classList.add('danger');
     } else if (this.timeLeft <= 60) {
-      fuseFill.style.background = 'linear-gradient(90deg, #ffa500, #ff6347)';
+      fuseBurn.style.background = 'linear-gradient(90deg, transparent 0%, #663300 40%, #1a1a1a 100%)';
       fuseBomb.classList.remove('danger');
     } else {
-      fuseFill.style.background = 'linear-gradient(90deg, #22c55e, #4ade80)';
+      fuseBurn.style.background = 'linear-gradient(90deg, transparent 0%, #333 40%, #1a1a1a 100%)';
       fuseBomb.classList.remove('danger');
     }
 
