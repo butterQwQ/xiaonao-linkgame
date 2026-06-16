@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
   <title>🎮 小闹游戏盒</title>
-  <script type="module" crossorigin src="./assets/index-Bd3H0sK9.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-DqexDu3q.css">
+  <script type="module" crossorigin src="./assets/index-DHr81zRB.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-50C9rHHE.css">
 </head>
 <body>
   <!-- 装饰元素 -->
@@ -54,6 +54,15 @@
 
     <!-- DOM 游戏区域（数字消除等） -->
     <div class="game-area" id="gameAreaDom" style="display:none">
+      <!-- 炸弹引线倒计时 -->
+      <div class="fuse-bar" id="fuseBar">
+        <div class="fuse-bomb" id="fuseBomb">💣</div>
+        <div class="fuse-track">
+          <div class="fuse-fill" id="fuseFill"></div>
+          <div class="fuse-spark" id="fuseSpark">🔥</div>
+        </div>
+        <div class="fuse-timer" id="numElimTimer">3:00</div>
+      </div>
       <div class="num-elim-container" id="numElimContainer">
         <div class="num-elim-grid" id="numElimGrid"></div>
         <div class="num-elim-sum" id="numElimSum"></div>
