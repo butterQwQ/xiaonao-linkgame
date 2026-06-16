@@ -299,14 +299,22 @@ function handleToggleBGM() {
   const on = toggleBGM();
   const btn = document.getElementById('bgmBtn');
   if (btn) btn.textContent = on ? '🎵' : '🔇';
+  const menuBtn = document.getElementById('menuBgmBtn');
+  if (menuBtn) menuBtn.textContent = on ? '🎵' : '🔇';
   if (on) {
-    // Resume BGM for current mode
     const m = state.mode;
     if (m === 'classic') playBGM('classic');
     else if (m === 'match3') playBGM('match3');
     else if (m === 'numberElim') playBGM('numberElim');
     else playBGM('menu');
   }
+}
+
+function handleMenuBGM() {
+  const on = toggleBGM();
+  const menuBtn = document.getElementById('menuBgmBtn');
+  if (menuBtn) menuBtn.textContent = on ? '🎵' : '🔇';
+  if (on) playBGM('menu');
 }
 
 // --- Init ---
@@ -323,6 +331,15 @@ document.addEventListener('DOMContentLoaded', () => {
   document.addEventListener('touchmove', (e) => {
     if (e.target.closest('.overlay-card')) return;
   }, { passive: true });
+
+  // 首次交互后播放菜单 BGM
+  const _startMenuBGM = () => {
+    playBGM('menu');
+    document.removeEventListener('click', _startMenuBGM);
+    document.removeEventListener('touchstart', _startMenuBGM);
+  };
+  document.addEventListener('click', _startMenuBGM);
+  document.addEventListener('touchstart', _startMenuBGM);
 });
 
 // Expose globals for HTML onclick attributes
@@ -340,6 +357,7 @@ window.handlePhotoUpload = handlePhotoUpload;
 window.confirmCrop = confirmCrop;
 window.useHint = handleHintBtn;
 window.toggleBGM = handleToggleBGM;
+window.toggleMenuBGM = handleMenuBGM;
 
 console.log('🎮 小闹游戏盒 v2.0 已加载！');
 console.log('🎀 兑换码: 豆豆爱闹闹');

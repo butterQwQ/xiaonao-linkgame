@@ -5,7 +5,7 @@
 import { state } from '../state.js';
 import { playClick, playMatch, playVictory, playPowerup } from '../audio.js';
 
-const TOTAL_TIME = 180; // 180秒
+const TOTAL_TIME = 240; // 240秒 = 4分钟
 const RATINGS = [
   { score: 160, title: '👑 小闹女王', color: '#FF1493' },
   { score: 140, title: '💻 程序员', color: '#00BFFF' },
@@ -28,8 +28,8 @@ export class NumberElimGame {
     this.level = 1;
     this.combo = 0;
     this.isSelecting = false;
-    this.startCell = null;
-    this.currentCell = null;
+    this._startPos = null;
+    this._curPos = null;
     this.selectedCells = [];
     this.timeLeft = TOTAL_TIME;
     this._timerInterval = null;
@@ -177,50 +177,51 @@ export class NumberElimGame {
   }
 
   // ---- 交互 ----
-  _cellFromPoint(clientX, clientY) {
-    const el = document.elementFromPoint(clientX, clientY);
-    if (!el) return null;
-    const cellEl = el.closest('.ne-cell');
-    if (!cellEl) return null;
-    const row = parseInt(cellEl.dataset.row);
-    const col = parseInt(cellEl.dataset.col);
-    if (isNaN(row) || isNaN(col)) return null;
-    return { row, col, el: cellEl };
+
+  /** 获取 container 相对坐标 */
+  _containerPos(clientX, clientY) {
+    const container = document.getElementById('numElimContainer');
+    if (!container) return { x: 0, y: 0 };
+    const r = container.getBoundingClientRect();
+    return { x: clientX - r.left, y: clientY - r.top };
+  }
+
+  _getRect() {
+    if (!this._startPos || !this._curPos) return null;
+    return {
+      left: Math.min(this._startPos.x, this._curPos.x),
+      top: Math.min(this._startPos.y, this._curPos.y),
+      right: Math.max(this._startPos.x, this._curPos.x),
+      bottom: Math.max(this._startPos.y, this._curPos.y),
+    };
   }
 
   _handleStart(point) {
     if (this._gameOver) return;
-    // 兼容 mouse event 和 touch event
-    const clientX = point.clientX || (point.touches && point.touches[0]?.clientX);
-    const clientY = point.clientY || (point.touches && point.touches[0]?.clientY);
+    const clientX = point.clientX || (point.touches && point.touches[0]?.clientX) || 0;
+    const clientY = point.clientY || (point.touches && point.touches[0]?.clientY) || 0;
+    const grid = document.getElementById('numElimGrid');
+    if (!grid) return;
 
-    const target = point.target ? point.target.closest('.ne-cell') : null;
-    if (!target) {
-      const cell = this._cellFromPoint(clientX || 0, clientY || 0);
-      if (!cell || this.eliminated[cell.row][cell.col]) return;
-      this.isSelecting = true;
-      this.startCell = cell;
-      this.currentCell = cell;
-    } else {
-      const row = parseInt(target.dataset.row);
-      const col = parseInt(target.dataset.col);
-      if (isNaN(row) || isNaN(col) || this.eliminated[row][col]) return;
-      this.isSelecting = true;
-      this.startCell = { row, col, el: target };
-      this.currentCell = { row, col, el: target };
+    // 检查是否点在游戏容器内
+    const container = document.getElementById('numElimContainer');
+    if (container) {
+      const cr = container.getBoundingClientRect();
+      if (clientX < cr.left || clientX > cr.right || clientY < cr.top || clientY > cr.bottom) return;
     }
+
+    this.isSelecting = true;
+    this._startPos = this._containerPos(clientX, clientY);
+    this._curPos = { ...this._startPos };
     playClick();
     this.updateSelection();
   }
 
   _handleMove(point) {
     if (!this.isSelecting || this._gameOver) return;
-    const clientX = point.clientX || (point.touches && point.touches[0]?.clientX);
-    const clientY = point.clientY || (point.touches && point.touches[0]?.clientY);
-    const cell = this._cellFromPoint(clientX || 0, clientY || 0);
-    if (!cell || this.eliminated[cell.row][cell.col]) return;
-    if (this.currentCell && this.currentCell.row === cell.row && this.currentCell.col === cell.col) return;
-    this.currentCell = cell;
+    const clientX = point.clientX || (point.touches && point.touches[0]?.clientX) || 0;
+    const clientY = point.clientY || (point.touches && point.touches[0]?.clientY) || 0;
+    this._curPos = this._containerPos(clientX, clientY);
     this.updateSelection();
   }
 
@@ -234,50 +235,49 @@ export class NumberElimGame {
   updateSelection() {
     document.querySelectorAll('.ne-cell.selected').forEach(el => el.classList.remove('selected'));
     const selBox = document.getElementById('numElimSelection');
-    if (!this.startCell || !this.currentCell) {
+    if (!this.isSelecting || !this._startPos || !this._curPos) {
       if (selBox) selBox.classList.remove('active');
       return;
     }
 
-    const minRow = Math.min(this.startCell.row, this.currentCell.row);
-    const maxRow = Math.max(this.startCell.row, this.currentCell.row);
-    const minCol = Math.min(this.startCell.col, this.currentCell.col);
-    const maxCol = Math.max(this.startCell.col, this.currentCell.col);
+    const rect = this._getRect();
+    if (!rect || (rect.right - rect.left < 2 && rect.bottom - rect.top < 2)) {
+      if (selBox) selBox.classList.remove('active');
+      return;
+    }
 
+    // 绘制自由矩形框（像素坐标）
+    if (selBox) {
+      selBox.style.left = rect.left + 'px';
+      selBox.style.top = rect.top + 'px';
+      selBox.style.width = (rect.right - rect.left) + 'px';
+      selBox.style.height = (rect.bottom - rect.top) + 'px';
+      selBox.classList.add('active');
+    }
+
+    // 选中矩形内的所有有效格子
     this.selectedCells = [];
     let sum = 0;
     const grid = document.getElementById('numElimGrid');
+    const allCells = grid.querySelectorAll('.ne-cell:not(.ne-empty)');
 
-    for (let r = minRow; r <= maxRow; r++) {
-      for (let c = minCol; c <= maxCol; c++) {
-        if (!this.eliminated[r][c]) {
-          const cellEl = grid.querySelector(`.ne-cell[data-row="${r}"][data-col="${c}"]`);
-          if (cellEl) {
-            cellEl.classList.add('selected');
-            this.selectedCells.push({ row: r, col: c, el: cellEl });
-            sum += this.grid[r][c];
-          }
-        }
-      }
-    }
-
-    // 更新选择矩形框位置和大小
-    if (selBox && this.selectedCells.length > 0) {
-      const gridRect = grid.getBoundingClientRect();
+    allCells.forEach(cellEl => {
+      const cr = cellEl.getBoundingClientRect();
       const container = document.getElementById('numElimContainer');
       const containerRect = container.getBoundingClientRect();
+      const cx = cr.left + cr.width / 2 - containerRect.left;
+      const cy = cr.top + cr.height / 2 - containerRect.top;
 
-      const firstCell = this.selectedCells[0].el;
-      const lastCell = this.selectedCells[this.selectedCells.length - 1].el;
-      const firstRect = firstCell.getBoundingClientRect();
-      const lastRect = lastCell.getBoundingClientRect();
-
-      selBox.style.left = (firstRect.left - containerRect.left) + 'px';
-      selBox.style.top = (firstRect.top - containerRect.top) + 'px';
-      selBox.style.width = (lastRect.right - firstRect.left) + 'px';
-      selBox.style.height = (lastRect.bottom - firstRect.top) + 'px';
-      selBox.classList.add('active');
-    }
+      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+        const row = parseInt(cellEl.dataset.row);
+        const col = parseInt(cellEl.dataset.col);
+        if (!this.eliminated[row][col]) {
+          cellEl.classList.add('selected');
+          this.selectedCells.push({ row, col, el: cellEl });
+          sum += this.grid[row][col];
+        }
+      }
+    });
 
     const sumEl = document.getElementById('numElimSum');
     if (this.selectedCells.length > 0) {
@@ -285,6 +285,8 @@ export class NumberElimGame {
       sumEl.classList.add('show');
       if (sum === 10) sumEl.classList.add('valid');
       else sumEl.classList.remove('valid');
+    } else {
+      sumEl.classList.remove('show', 'valid');
     }
   }
 
@@ -295,8 +297,8 @@ export class NumberElimGame {
     const sumEl = document.getElementById('numElimSum');
     if (sumEl) sumEl.classList.remove('show', 'valid');
     this.selectedCells = [];
-    this.startCell = null;
-    this.currentCell = null;
+    this._startPos = null;
+    this._curPos = null;
   }
 
   checkElimination() {
