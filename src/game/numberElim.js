@@ -463,7 +463,28 @@ export class NumberElimGame {
     return false;
   }
 
-  shuffle() { this.generateGrid(); this.render(); this.combo = 0; return true; }
+  shuffle() {
+    // 只洗牌剩余未消除的方块
+    const remaining = [];
+    for (let r = 0; r < this.rows; r++)
+      for (let c = 0; c < this.cols; c++)
+        if (!this.eliminated[r][c]) remaining.push({ r, c, v: this.grid[r][c] });
+
+    // Fisher-Yates
+    for (let i = remaining.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+    }
+
+    // 写回
+    for (const item of remaining) {
+      this.grid[item.r][item.c] = item.v;
+    }
+
+    this.render();
+    this.combo = 0;
+    return true;
+  }
   useBomb() { return false; }
   useUndo() { return false; }
   useFreeze() { return false; }

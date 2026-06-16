@@ -46,6 +46,12 @@ export const POWERUPS = [
   { id: 'undo', icon: '🔄', name: '撤销', desc: '回退上一步操作' }
 ];
 
+// 数字消除只需要洗牌和提示
+export const NUMBERELIM_POWERUPS = [
+  { id: 'shuffle', icon: '🔀', name: '洗牌', desc: '打乱剩余方块位置' },
+  { id: 'hint', icon: '💡', name: '提示', desc: '高亮可消除区域' }
+];
+
 export const VALID_CODES = {
   '豆豆爱闹闹': '🎉 恭喜兑换成功！获得全部道具各+3！'
 };

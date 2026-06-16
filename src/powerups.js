@@ -2,7 +2,7 @@
 // 道具系统
 // ============================================================
 
-import { POWERUPS } from './config.js';
+import { POWERUPS, NUMBERELIM_POWERUPS } from './config.js';
 import { state } from './state.js';
 import { FloatText } from './particles.js';
 import { render } from './ui/render.js';
@@ -29,7 +29,9 @@ export function updateToolbar() {
   const bar = document.getElementById('gameToolbar');
   if (!bar) return;
   bar.innerHTML = '';
-  POWERUPS.forEach(pu => {
+  const list = (state.game && state.game.mode === 'numberElim')
+    ? NUMBERELIM_POWERUPS : POWERUPS;
+  list.forEach(pu => {
     const cnt = powerupState[pu.id] || 0;
     const wrap = document.createElement('div');
     wrap.className = 'tool-btn-wrap';
