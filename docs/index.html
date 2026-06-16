@@ -4,8 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
   <title>🎮 小闹游戏盒</title>
-  <script type="module" crossorigin src="./assets/index-DHr81zRB.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-50C9rHHE.css">
+  <script type="module" crossorigin src="./assets/index-D3USYMi0.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DLdJrpei.css">
 </head>
 <body>
   <!-- 装饰元素 -->
@@ -38,6 +38,7 @@
         <span class="score-sub" id="scoreSubDisplay"></span>
       </div>
       <div class="header-right">
+        <button class="mode-btn" id="bgmBtn" onclick="toggleBGM()" title="音乐开关">🎵</button>
         <span class="level-badge" id="levelDisplay">Lv.1</span>
         <button class="mode-btn" id="hintBtn" onclick="useHint()">💡</button>
       </div>
@@ -54,12 +55,12 @@
 
     <!-- DOM 游戏区域（数字消除等） -->
     <div class="game-area" id="gameAreaDom" style="display:none">
-      <!-- 炸弹引线倒计时 -->
+      <!-- 炸弹引线倒计时条（宽度与下方网格对齐） -->
       <div class="fuse-bar" id="fuseBar">
         <div class="fuse-bomb" id="fuseBomb">💣</div>
-        <div class="fuse-track">
-          <div class="fuse-fill" id="fuseFill"></div>
-          <div class="fuse-spark" id="fuseSpark">🔥</div>
+        <div class="fuse-rope">
+          <div class="fuse-burn" id="fuseBurn"></div>
+          <div class="fuse-spark" id="fuseSpark"></div>
         </div>
         <div class="fuse-timer" id="numElimTimer">3:00</div>
       </div>
