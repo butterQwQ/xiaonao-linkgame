@@ -67,6 +67,65 @@ function playArpeggio(notes, interval, vol = 0.07) {
   });
 }
 
+// ==================== 背景音乐系统 ====================
+
+/**
+ * BGM 文件配置 —— 把你的音乐文件放到 public/audio/ 下面，改这里的文件名即可
+ * 支持 .mp3 / .ogg / .wav
+ */
+export const BGM_TRACKS = {
+  menu:       '/audio/bgm_menu.mp3',
+  classic:    '/audio/bgm_classic.mp3',
+  match3:     '/audio/bgm_match3.mp3',
+  numberElim: '/audio/bgm_numberelim.mp3',
+};
+
+let _bgmAudio = null;
+let _bgmOn = true;
+let _bgmVolume = 0.35;
+
+/** 解锁音频（首次用户点击后调用） */
+export function unlockAudio() {
+  try { getAudioCtx().resume(); } catch (e) { /* ignore */ }
+}
+
+/** 播放指定 BGM（循环） */
+export function playBGM(key) {
+  unlockAudio();
+  stopBGM();
+  if (!_bgmOn) return;
+  const src = BGM_TRACKS[key];
+  if (!src) return;
+  _bgmAudio = new Audio();
+  _bgmAudio.src = src;
+  _bgmAudio.loop = true;
+  _bgmAudio.volume = _bgmVolume;
+  _bgmAudio.play().catch(() => {});
+}
+
+/** 停止 BGM */
+export function stopBGM() {
+  if (_bgmAudio) {
+    _bgmAudio.pause();
+    _bgmAudio.currentTime = 0;
+    _bgmAudio = null;
+  }
+}
+
+/** 切换开关，返回当前状态 */
+export function toggleBGM() {
+  _bgmOn = !_bgmOn;
+  if (!_bgmOn) stopBGM();
+  return _bgmOn;
+}
+
+export function isBGMOn() { return _bgmOn; }
+
+export function setBGMVolume(v) {
+  _bgmVolume = Math.max(0, Math.min(1, v));
+  if (_bgmAudio) _bgmAudio.volume = _bgmVolume;
+}
+
 // ==================== 各场景音效 ====================
 
 /** 点击方块 — 轻巧短促 */

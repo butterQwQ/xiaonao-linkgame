@@ -5,7 +5,7 @@
 import './style.css';
 import { IMG_FILES, IMG_PATH } from './config.js';
 import { state, SWIPE_THRESHOLD } from './state.js';
-import { playClick } from './audio.js';
+import { playClick, playBGM, stopBGM, toggleBGM, isBGMOn } from './audio.js';
 import { ClassicGame } from './game/classic.js';
 import { Match3Game } from './game/match3.js';
 import { NumberElimGame } from './game/numberElim.js';
@@ -92,6 +92,7 @@ export function startClassicMode() {
     switchScreen('gameScreen');
     setupCanvas();
     updateToolbar();
+    playBGM('classic');
     render();
     if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
     gameLoop();
@@ -110,6 +111,7 @@ export function startMatch3Mode() {
     switchScreen('gameScreen');
     setupCanvas();
     updateToolbar();
+    playBGM('match3');
     render();
     if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
     gameLoop();
@@ -124,6 +126,7 @@ export function startNumberElimMode() {
   document.getElementById('modeBadge').textContent = '🔢 数字消除';
   _setupDomModeUI();
   switchScreen('gameScreen');
+  playBGM('numberElim');
 }
 
 export function nextLevel() {
@@ -173,6 +176,8 @@ export function retryLevel() {
 
 export function backToMenu() {
   playClick();
+  stopBGM();
+  playBGM('menu');
   if (state.animFrameId) cancelAnimationFrame(state.animFrameId);
   closeOverlay('resultOverlay');
   closeOverlay('photoOverlay');
@@ -280,13 +285,27 @@ function handleTouchEnd() {
   state.dragTarget = null;
 }
 
-// --- Number elimin hint button ---
+// --- Hint / BGM toggle ---
 function handleHintBtn() {
   if (!state.game) return;
   if (state.game.mode === 'numberElim') {
     state.game.showHint();
   } else {
     usePowerup('hint');
+  }
+}
+
+function handleToggleBGM() {
+  const on = toggleBGM();
+  const btn = document.getElementById('bgmBtn');
+  if (btn) btn.textContent = on ? '🎵' : '🔇';
+  if (on) {
+    // Resume BGM for current mode
+    const m = state.mode;
+    if (m === 'classic') playBGM('classic');
+    else if (m === 'match3') playBGM('match3');
+    else if (m === 'numberElim') playBGM('numberElim');
+    else playBGM('menu');
   }
 }
 
@@ -320,6 +339,7 @@ window.closeOverlay = closeOverlay;
 window.handlePhotoUpload = handlePhotoUpload;
 window.confirmCrop = confirmCrop;
 window.useHint = handleHintBtn;
+window.toggleBGM = handleToggleBGM;
 
 console.log('🎮 小闹游戏盒 v2.0 已加载！');
 console.log('🎀 兑换码: 豆豆爱闹闹');
