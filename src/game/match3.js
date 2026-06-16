@@ -219,8 +219,9 @@ export class Match3Game {
       }
       if (!hasEmpty) continue;
 
+      // 从上到下收集幸存方块
       const blocks = [];
-      for (let r = this.rows - 1; r >= 0; r--) {
+      for (let r = 0; r < this.rows; r++) {
         if (this.board[r][c] !== 0 && this.board[r][c] !== null) {
           blocks.push({ row: r, block: this.board[r][c] });
         }
@@ -230,6 +231,7 @@ export class Match3Game {
         this.board[r][c] = 0;
       }
 
+      // 从底部开始压实：blocks 从上到下排列，逆序遍历 → 最底部的先放到最底部
       let destRow = this.rows - 1;
       for (let i = blocks.length - 1; i >= 0; i--) {
         const b = blocks[i];

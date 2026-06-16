@@ -67,14 +67,19 @@ export function getBlockAt(game, px, py) {
   return null;
 }
 
-// --- 方块缓存：预渲染每种类型，避免每帧重复 shadowBlur / clip ---
+// --- 方块缓存：预渲染每种类型到离屏 canvas（DPR 感知保证清晰度）---
 const _blockCache = {};
 function _buildBlockCache(blockTypeIdx, srcImg, bs) {
-  const key = `${blockTypeIdx}_${bs}`;
+  const dpr = window.devicePixelRatio || 1;
+  const key = `${blockTypeIdx}_${bs}_${dpr}`;
   if (_blockCache[key]) return _blockCache[key];
+
+  const px = Math.round(bs * dpr);
   const c = document.createElement('canvas');
-  c.width = bs; c.height = bs;
+  c.width = px; c.height = px;
   const cx = c.getContext('2d');
+  cx.scale(dpr, dpr);
+
   const pad = 2;
   const r = bs * 0.2;
   const innerSize = bs - pad * 2;
@@ -131,9 +136,9 @@ function drawBlock(ctx, game, row, col, highlight) {
   const srcImg = state.customImages[imgIdx] || state.images[imgIdx];
   if (!srcImg) return;
 
-  // 用缓存直接贴图（跳过每帧的 clip + drawImage + shadowBlur）
+  // 用缓存直接贴图（指定目标尺寸，匹配 DPR 缩放）
   const cached = _buildBlockCache(imgIdx, srcImg, bs);
-  ctx.drawImage(cached, x, y);
+  ctx.drawImage(cached, x, y, bs, bs);
 
   // 高亮环（仅选中的方块才画）
   if (highlight) {
@@ -174,26 +179,12 @@ function drawBlockAt(ctx, game, x, y, block) {
   }
 
   const imgIdx = typeof block === 'object' ? block.idx : block - 1;
-  const img = state.customImages[imgIdx] || state.images[imgIdx];
-  if (!img) return;
+  const srcImg = state.customImages[imgIdx] || state.images[imgIdx];
+  if (!srcImg) return;
 
-  ctx.save();
-  ctx.beginPath();
-  ctx.roundRect(x + pad, y + pad, bs - pad * 2, bs - pad * 2, r);
-  ctx.clip();
-  if (img instanceof HTMLImageElement || img instanceof HTMLCanvasElement) {
-    ctx.drawImage(img, x + pad, y + pad, bs - pad * 2, bs - pad * 2);
-  }
-  ctx.restore();
-
-  const macaronColor = MACARON_COLORS[imgIdx % MACARON_COLORS.length];
-  ctx.strokeStyle = macaronColor;
-  ctx.lineWidth = 2.5;
-  ctx.shadowColor = macaronColor + '40';
-  ctx.shadowBlur = 6;
-  drawRoundedRect(ctx, x + pad, y + pad, bs - pad * 2, bs - pad * 2, r);
-  ctx.stroke();
-  ctx.shadowBlur = 0;
+  // 用缓存贴图（动画帧也用缓存，保持清晰度）
+  const cached = _buildBlockCache(imgIdx, srcImg, bs);
+  ctx.drawImage(cached, x, y, bs, bs);
 }
 
 // --- Drag indicator ---
