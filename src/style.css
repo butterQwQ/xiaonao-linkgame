@@ -589,8 +589,8 @@ html, body {
 }
 .ne-cell:hover { transform: scale(1.06); }
 .ne-cell.selected {
-  background: #ffd93d;
-  color: #333;
+  background: #FF69B4;
+  color: white;
   transform: scale(1.06);
 }
 .ne-cell.ne-empty {

@@ -464,21 +464,25 @@ export class NumberElimGame {
   }
 
   shuffle() {
-    // 只洗牌剩余未消除的方块
-    const remaining = [];
+    // 只洗牌剩余未消除的方块 — 收集值和位置分开，值打乱后写回
+    const positions = [];
+    const values = [];
     for (let r = 0; r < this.rows; r++)
       for (let c = 0; c < this.cols; c++)
-        if (!this.eliminated[r][c]) remaining.push({ r, c, v: this.grid[r][c] });
+        if (!this.eliminated[r][c]) {
+          positions.push({ r, c });
+          values.push(this.grid[r][c]);
+        }
 
-    // Fisher-Yates
-    for (let i = remaining.length - 1; i > 0; i--) {
+    // Fisher-Yates 打乱值
+    for (let i = values.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [remaining[i], remaining[j]] = [remaining[j], remaining[i]];
+      [values[i], values[j]] = [values[j], values[i]];
     }
 
     // 写回
-    for (const item of remaining) {
-      this.grid[item.r][item.c] = item.v;
+    for (let i = 0; i < positions.length; i++) {
+      this.grid[positions[i].r][positions[i].c] = values[i];
     }
 
     this.render();
