@@ -60,24 +60,34 @@ export function switchScreen(id) {
 }
 
 // --- UI mode helpers ---
+function _syncBgmBtn() {
+  const on = isBGMOn();
+  const btn = document.getElementById('bgmBtn');
+  if (btn) btn.textContent = on ? '🎵' : '🔇';
+  const menuBtn = document.getElementById('menuBgmBtn');
+  if (menuBtn) menuBtn.textContent = on ? '🎵' : '🔇';
+}
+
 function _setupElimModeUI() {
-  // 消除类游戏：显示 canvas + 工具栏 + 扩展栏
   document.getElementById('gameArea').style.display = '';
   document.getElementById('gameAreaDom').style.display = 'none';
   document.getElementById('gameToolbar').style.display = '';
   document.getElementById('gameExtraBar').style.display = '';
-  document.getElementById('hintBtn').style.display = 'none'; // hint in toolbar
+  document.getElementById('hintBtn').style.display = 'none';
   document.getElementById('scoreSubDisplay').textContent = '';
+  _syncBgmBtn();
 }
 
 function _setupDomModeUI() {
-  // DOM 游戏（数字消除）：隐藏 canvas + 工具栏 + 扩展栏
   document.getElementById('gameArea').style.display = 'none';
   document.getElementById('gameAreaDom').style.display = '';
-  document.getElementById('gameToolbar').style.display = 'none';
+  // 数字消除也显示工具栏（洗牌等道具）
+  document.getElementById('gameToolbar').style.display = '';
   document.getElementById('gameExtraBar').style.display = 'none';
   document.getElementById('hintBtn').style.display = '';
   document.getElementById('scoreSubDisplay').textContent = '';
+  _syncBgmBtn();
+  updateToolbar();
 }
 
 // --- Game start (消除类) ---
@@ -121,6 +131,7 @@ export function startMatch3Mode() {
 // --- 数字消除 ---
 export function startNumberElimMode() {
   playClick();
+  resetPowerups();
   state.mode = 'numberElim';
   state.game = new NumberElimGame();
   document.getElementById('modeBadge').textContent = '🔢 数字消除';
@@ -196,6 +207,7 @@ export function backToMenu() {
   state.mode = null;
   document.getElementById('frozenOverlay').classList.remove('active');
   switchScreen('menuScreen');
+  _syncBgmBtn();
 }
 
 // --- Canvas interaction ---

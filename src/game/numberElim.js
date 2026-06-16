@@ -188,11 +188,21 @@ export class NumberElimGame {
 
   _getRect() {
     if (!this._startPos || !this._curPos) return null;
+    const left = Math.min(this._startPos.x, this._curPos.x);
+    const top = Math.min(this._startPos.y, this._curPos.y);
+    const right = Math.max(this._startPos.x, this._curPos.x);
+    const bottom = Math.max(this._startPos.y, this._curPos.y);
+    // 直线拖动时给一个最小尺寸，保证能选中经过的格子
+    const MIN_SIZE = 12;
+    const w = Math.max(right - left, MIN_SIZE);
+    const h = Math.max(bottom - top, MIN_SIZE);
+    const cx = (left + right) / 2;
+    const cy = (top + bottom) / 2;
     return {
-      left: Math.min(this._startPos.x, this._curPos.x),
-      top: Math.min(this._startPos.y, this._curPos.y),
-      right: Math.max(this._startPos.x, this._curPos.x),
-      bottom: Math.max(this._startPos.y, this._curPos.y),
+      left: cx - w / 2,
+      top: cy - h / 2,
+      right: cx + w / 2,
+      bottom: cy + h / 2,
     };
   }
 
@@ -241,12 +251,12 @@ export class NumberElimGame {
     }
 
     const rect = this._getRect();
-    if (!rect || (rect.right - rect.left < 2 && rect.bottom - rect.top < 2)) {
+    if (!rect) {
       if (selBox) selBox.classList.remove('active');
       return;
     }
 
-    // 绘制自由矩形框（像素坐标）
+    // 绘制自由矩形框
     if (selBox) {
       selBox.style.left = rect.left + 'px';
       selBox.style.top = rect.top + 'px';
@@ -255,20 +265,24 @@ export class NumberElimGame {
       selBox.classList.add('active');
     }
 
-    // 选中矩形内的所有有效格子
+    // 选中与矩形有重叠的格子（矩形与格子 bounding box 相交即选中）
     this.selectedCells = [];
     let sum = 0;
     const grid = document.getElementById('numElimGrid');
     const allCells = grid.querySelectorAll('.ne-cell:not(.ne-empty)');
+    const container = document.getElementById('numElimContainer');
+    const containerRect = container.getBoundingClientRect();
 
     allCells.forEach(cellEl => {
       const cr = cellEl.getBoundingClientRect();
-      const container = document.getElementById('numElimContainer');
-      const containerRect = container.getBoundingClientRect();
-      const cx = cr.left + cr.width / 2 - containerRect.left;
-      const cy = cr.top + cr.height / 2 - containerRect.top;
+      const cellLeft = cr.left - containerRect.left;
+      const cellTop = cr.top - containerRect.top;
+      const cellRight = cr.right - containerRect.left;
+      const cellBottom = cr.bottom - containerRect.top;
 
-      if (cx >= rect.left && cx <= rect.right && cy >= rect.top && cy <= rect.bottom) {
+      // 两个矩形相交检测
+      if (rect.left < cellRight && rect.right > cellLeft &&
+          rect.top < cellBottom && rect.bottom > cellTop) {
         const row = parseInt(cellEl.dataset.row);
         const col = parseInt(cellEl.dataset.col);
         if (!this.eliminated[row][col]) {
