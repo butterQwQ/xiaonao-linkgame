@@ -81,9 +81,9 @@ function _setupElimModeUI() {
 function _setupDomModeUI() {
   document.getElementById('gameArea').style.display = 'none';
   document.getElementById('gameAreaDom').style.display = '';
-  // 数字消除也显示工具栏（洗牌等道具）
+  // 数字消除也显示工具栏（洗牌等道具）和兑换码入口
   document.getElementById('gameToolbar').style.display = '';
-  document.getElementById('gameExtraBar').style.display = 'none';
+  document.getElementById('gameExtraBar').style.display = '';
   document.getElementById('hintBtn').style.display = '';
   document.getElementById('scoreSubDisplay').textContent = '';
   _syncBgmBtn();
