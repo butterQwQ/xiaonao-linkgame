@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0" />
-  <title>💖 闹闹消消乐 💖</title>
-  <script type="module" crossorigin src="./assets/index-bsNtGExU.js"></script>
-  <link rel="stylesheet" crossorigin href="./assets/index-Dc1GcoT1.css">
+  <title>🎮 小闹游戏盒</title>
+  <script type="module" crossorigin src="./assets/index-Bd3H0sK9.js"></script>
+  <link rel="stylesheet" crossorigin href="./assets/index-DqexDu3q.css">
 </head>
 <body>
   <!-- 装饰元素 -->
@@ -16,13 +16,12 @@
 
   <!-- ==================== 菜单界面 ==================== -->
   <div id="menuScreen" class="screen active">
-    <div class="menu-title">💖 闹闹消消乐 💖</div>
-    <div class="menu-subtitle">🌸 超可爱的消除游戏 🌸</div>
+    <div class="menu-title">🎮 小闹游戏盒</div>
+    <div class="menu-subtitle">🌸 好玩的小游戏合集 🌸</div>
     <div class="menu-btns">
       <button class="btn btn-primary" onclick="startClassicMode()">🖇️ 经典连连看</button>
       <button class="btn btn-secondary" onclick="startMatch3Mode()">🌈 开心消消乐</button>
-      <button class="btn btn-small" style="margin-top:8px;align-self:center" onclick="openPhotos()">📸 自定义方块</button>
-      <button class="btn btn-small" style="align-self:center" onclick="openRedeem()">🎁 兑换码</button>
+      <button class="btn btn-gold" onclick="startNumberElimMode()">🔢 数字消除</button>
     </div>
   </div>
 
@@ -34,14 +33,17 @@
         <span class="mode-badge" id="modeBadge">🖇️ 连连看</span>
       </div>
       <div class="header-center">
-        <span class="score-label">✨ 得分</span>
+        <span class="score-label" id="scoreLabel">✨ 得分</span>
         <span class="score-value" id="scoreDisplay">0</span>
+        <span class="score-sub" id="scoreSubDisplay"></span>
       </div>
       <div class="header-right">
         <span class="level-badge" id="levelDisplay">Lv.1</span>
         <button class="mode-btn" id="hintBtn" onclick="useHint()">💡</button>
       </div>
     </div>
+
+    <!-- Canvas 游戏区域（连连看/消消乐） -->
     <div class="game-area" id="gameArea">
       <canvas id="gameCanvas"></canvas>
       <div class="frozen-overlay" id="frozenOverlay">
@@ -49,7 +51,23 @@
       </div>
       <div class="combo-popup" id="comboPopup"></div>
     </div>
+
+    <!-- DOM 游戏区域（数字消除等） -->
+    <div class="game-area" id="gameAreaDom" style="display:none">
+      <div class="num-elim-container" id="numElimContainer">
+        <div class="num-elim-grid" id="numElimGrid"></div>
+        <div class="num-elim-sum" id="numElimSum"></div>
+      </div>
+    </div>
+
+    <!-- 游戏内工具栏（消除类游戏显示） -->
     <div class="game-toolbar" id="gameToolbar"></div>
+
+    <!-- 消除类游戏专属入口：自定义方块 + 兑换码 -->
+    <div class="game-extra-bar" id="gameExtraBar" style="display:none">
+      <button class="btn btn-small extra-btn" onclick="openPhotos()">📸 自定义方块</button>
+      <button class="btn btn-small extra-btn gold-btn" onclick="openRedeem()">🎁 兑换码</button>
+    </div>
   </div>
 
   <!-- ==================== 照片自定义弹窗 ==================== -->
