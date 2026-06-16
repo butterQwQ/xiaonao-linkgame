@@ -323,7 +323,7 @@ export class ClassicGame {
     }));
 
     let progress = 0;
-    const duration = 30;
+    const duration = 10;  // ~170ms，快速画线
 
     const animate = () => {
       progress++;
@@ -336,7 +336,7 @@ export class ClassicGame {
       cctx.strokeStyle = 'rgba(255,215,0,0.7)';
       cctx.lineWidth = 3;
       cctx.setLineDash([6, 4]);
-      cctx.lineDashOffset = -progress * 2;
+      cctx.lineDashOffset = -progress * 4;
       cctx.shadowColor = 'rgba(255,215,0,0.5)';
       cctx.shadowBlur = 8;
 
@@ -370,7 +370,7 @@ export class ClassicGame {
           state.ctx.fillStyle = `rgba(255,215,0,${flashAlpha * 0.15})`;
           state.ctx.fillRect(0, 0, state.canvasW, state.canvasH);
           state.ctx.restore();
-          flashAlpha -= 0.1;
+          flashAlpha -= 0.3;
           if (flashAlpha > 0) {
             requestAnimationFrame(flashAnim);
           } else {
