@@ -15,7 +15,7 @@ export function setupCanvas() {
 }
 
 export function resizeCanvas() {
-  if (!state.game) return;
+  if (!state.game || state.game.mode === 'numberElim') return;
   const area = document.getElementById('gameArea');
   const pad = window.innerWidth < 500 ? 4 : 16; // 手机上减少内边距
   const maxW = area.clientWidth - pad;
@@ -230,7 +230,7 @@ function drawDragIndicator() {
 export function render() {
   const game = state.game;
   const ctx = state.ctx;
-  if (!game || !ctx) return;
+  if (!game || !ctx || game.mode === 'numberElim') return;
 
   ctx.save();
 
